@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import AuthContext from "./Context";
+import { useNavigate } from "react-router-dom";
 
 const Profile = ({ token }) => {
   const [userData, setUserData] = useState(null);
@@ -10,28 +11,25 @@ const Profile = ({ token }) => {
   const handleEdit = () => {
     SetEdit(true);
   };
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
+    firstName: context.firstName,
+    lastName: context.lastName,
+    email: context.email,
+    phone: context.phone,
   });
 
   const contextData = useContext(AuthContext);
-  console.log({ context });
+  //   console.log({ context });
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData((prev) => {
-      return {
-        ...prev,
-        email: context.email,
-      };
-    });
-    await axios
+
+    SetEdit(false);
+    axios
       .post(`http://localhost:5000/users/updates`, formData)
       .then((result) => {
         if (result.status === 200) {
-          console.log(result);
+          //   console.log(result);
           const { setUserNamePassword } = contextData;
           setUserNamePassword(
             result.data.firstName,
@@ -39,10 +37,11 @@ const Profile = ({ token }) => {
             result.data.phone,
             result.data.email
           );
-          //   navigate("/profile");
         }
       })
       .catch((err) => console.log(err));
+
+    axios.post(`http://localhost:5000/users/updates`, { email });
   };
   const editable = () => {
     return (
@@ -54,9 +53,10 @@ const Profile = ({ token }) => {
               type="text"
               placeholder={context.firstName}
               name="firstName"
+              className="form-control round-0"
               onChange={(e) =>
                 setFormData((prev) => {
-                  console.log(prev);
+                  //   console.log(prev);
                   return {
                     ...prev,
                     firstName: e.target.value,
@@ -65,12 +65,14 @@ const Profile = ({ token }) => {
               }
             />
           </div>
+          <br />
           <div>
-            <label>Lats Name</label>
+            <label>Last Name</label>
             <input
               type="text"
               placeholder={context.lastName}
               name="lastName"
+              className="form-control round-0"
               onChange={(e) =>
                 setFormData((prev) => {
                   return {
@@ -81,12 +83,14 @@ const Profile = ({ token }) => {
               }
             />
           </div>
+          <br />
           <div>
             <label>Number</label>
             <input
               type="text"
               placeholder="Enter New Number"
               name="phone"
+              className="form-control round-0"
               onChange={(e) =>
                 setFormData((prev) => {
                   return {
@@ -97,7 +101,7 @@ const Profile = ({ token }) => {
               }
             />
           </div>
-
+          <br />
           <button type="submit">Submit</button>
         </form>
       </>
@@ -105,12 +109,23 @@ const Profile = ({ token }) => {
   };
 
   return (
-    <div>
+    <div
+      className="border shadow"
+      style={{
+        margin: "2rem",
+        padding: "2rem",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <h2>Welcome, {context ? context.firstName : "User"}!</h2>
       <p>Email: {context ? context.email : "N/A"}</p>
       <p>Phone Number: {context ? context.phone : "N/A"}</p>
       <button onClick={handleEdit}>Edit Profile</button>
-
+      <br />
+      <br />
+      <hr></hr>
+      <br />
       <div>{edit ? editable() : <></>}</div>
     </div>
   );
